@@ -4,8 +4,8 @@ import express from 'express'
 
 const app = express()
 
-app.get('/', (req, res) => {
-   res.send(200).json({
+app.get('*', (req, res) => {
+   res.status(200).json({
       path: req.path,
       message: 'Hello',
    })
