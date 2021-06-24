@@ -7,6 +7,6 @@ import {
 const apiVersioningRouter = express.Router()
 
 // Exercise api routing
-apiVersioningRouter.use(exerciseApiDefenition.apiPath(), exerciseAPI)
+apiVersioningRouter.use(exerciseApiDefenition.url, exerciseAPI)
 
 export default apiVersioningRouter

@@ -1,7 +1,8 @@
 interface ApiDefenition {
-   apiVersion: string
-   apiRoot: string
-   apiPath: () => string
+   description: string
+   entrypoint: string
+   version: string
+   url: string
 }
 
 export default ApiDefenition
