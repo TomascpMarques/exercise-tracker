@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "mongoose": "^5.12.14",
     "node": "^16.3.0"
   }
 }
