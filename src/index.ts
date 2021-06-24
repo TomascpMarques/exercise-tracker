@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 import express from 'express'
-import apiVersionRouting from './routers/version_router'
+import apiVersionRouting from './api-routers/version_router'
 
 // sets up the api/s endpoints and the app itself
 const app = express().use('/api', apiVersionRouting)
