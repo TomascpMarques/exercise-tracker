@@ -1,16 +1,18 @@
 import express from 'express'
-export const exerciseAPIRouter = express.Router()
+// Api router defenition
+export const exerciseApi = express.Router()
 
-exerciseAPIRouter.use(
-   (req: express.Request, _res: express.Response, next: any) => {
-      console.log(`${req.method} @ ${req.path} by ${req.ip}`)
-      next()
-   }
-)
+// All routes pass through here, this logs the method, path and ip
+// given by the req parameter
+exerciseApi.use((req: express.Request, _res: express.Response, next: any) => {
+   console.log(`${req.method} @ ${req.path} by ${req.ip}`)
+   next()
+})
 
-exerciseAPIRouter.route('*').get((req, res) => {
+// The 404 page for the api
+exerciseApi.route('*').get((_req, res) => {
    res.status(200).json({
-      sender: req.ip,
-      message: 'All good',
+      error: 404,
+      message: 'endpoint not available',
    })
 })

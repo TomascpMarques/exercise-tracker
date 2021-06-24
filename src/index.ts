@@ -1,11 +1,10 @@
 require('dotenv').config()
 
 import express from 'express'
-import apiVersionRouter from './routers/version_router'
+import apiVersionRouting from './routers/version_router'
 
-const app = express()
-
-app.use('/api', apiVersionRouter)
+// sets up the api/s endpoints and the app itself
+const app = express().use('/api', apiVersionRouting)
 
 app.listen(process.env.PORT, () => {
    console.log(`Server is listening on port: ${process.env.PORT}`)
