@@ -1,6 +1,6 @@
 import express from 'express'
-import ApiDefenition from '../../apis_defs/api_defenition'
-import { exerciseAPIRouter } from './api'
+import ApiDefenition from '../../api-defenition-struct/api_defenition'
+import { exerciseAPIRouter } from './api_implementation'
 
 export const exerciseAPI = express().use(exerciseAPIRouter)
 

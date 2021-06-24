@@ -1,5 +1,8 @@
 import express from 'express'
-import { exerciseAPI, exerciseApiDefenition } from './api_exercise/v1/api_def'
+import {
+   exerciseAPI,
+   exerciseApiDefenition,
+} from './api-exercise/v1/api_defenition'
 
 const apiVersioningRouter = express.Router()
 
