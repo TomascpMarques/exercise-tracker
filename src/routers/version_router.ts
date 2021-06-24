@@ -9,14 +9,11 @@
  */
 
 import express from 'express'
-import {
-   exerciseAPI,
-   exerciseApiDefenition,
-} from './api-exercise/v1/api_defenition'
+import { userAPI, userApiDefenition } from './api-users/v1/api_defenition'
 
 const apiVersioningRouter = express.Router()
 
 // Exercise api routing to route '[/api]/vX/entrypoint'
-apiVersioningRouter.use(exerciseApiDefenition.url, exerciseAPI)
+apiVersioningRouter.use(userApiDefenition.url, userAPI)
 
 export default apiVersioningRouter
