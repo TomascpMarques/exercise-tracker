@@ -1,4 +1,5 @@
 import express from 'express'
+import { UserModel } from '../../../mongoose-db/schemas'
 // Api router defenition
 export const usersApi = express.Router()
 
@@ -33,9 +34,8 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
  *                type: string
  *                description: Server greeting
  */
-usersApi.route('/').get((_req, res) => {
+usersApi.route('/').get(async (_req, res) => {
   res.status(200).json({
-    error: 'none',
     message: 'Hello there',
   })
 })
