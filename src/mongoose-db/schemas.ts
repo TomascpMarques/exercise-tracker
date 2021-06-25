@@ -1,18 +1,21 @@
-import mongoose, { Model } from 'mongoose'
+import mongoose, { Model, Schema } from 'mongoose'
 
 export interface IUser {
-  favorite_exercise: string
-  country: string
+  favorite_exercise?: string
+  country?: string
   usrName: string
-  name: string
-  age: number
+  name: {
+    first: string
+    last: string
+  }
+  age?: number
 }
 
 const userSchema = new mongoose.Schema<IUser>({
   favorite_exercise: { type: String },
   country: { type: String },
   usrName: { type: String, required: true },
-  name: { type: String, required: true },
+  name: { type: Schema.Types.Mixed, required: true },
   age: { type: Number },
 })
 

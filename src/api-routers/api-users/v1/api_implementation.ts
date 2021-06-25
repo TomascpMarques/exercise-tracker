@@ -1,4 +1,5 @@
 import express from 'express'
+import { IUser, UserModel } from '../../../mongoose-db/schemas'
 // Api router defenition
 export const usersApi = express.Router()
 
@@ -19,22 +20,55 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
  *    description: User operations
  *    responses:
  *      200:
- *        description: Returns a greeting object.
+ *        description: Returns all the saved users in the data-base.
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              example: {"error": 'none', "message": 'hello there'}
- *              properties:
- *              error:
- *                type: string
- *                description: Op error if any
- *              message:
- *                type: string
- *                description: Server greeting
+ *              type: array
+ *              example:
+ *                [{"name": 'John Doe', "age": 18, "country": "Spain"}]
  */
 usersApi.route('/').get(async (_req, res) => {
-  res.status(200).json({
-    message: 'Hello there',
+  // Get all users from DB
+  const users: IUser[] = await UserModel.find().exec()
+  res.status(200).json(users)
+})
+
+/**
+ * @swagger
+ * /api/v1/users/{id}:
+ *  get:
+ *    tags:
+ *      - users
+ *    summary: Return user by specified ID
+ *    description: Search the database for the user in the route parameter
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: MongoDB ID of the User
+ *    responses:
+ *      200:
+ *        description: Returns the users data from the DB
+ *      404:
+ *        description: Returns a json object with a not found error
+ */
+usersApi.route('/:id').get(async (req, res) => {
+  const userID = req.params.id
+  await UserModel.findById(userID, (err: any, user: IUser) => {
+    // If user is not fiund, return an error and an empty object
+    if (err)
+      res.status(404).json({
+        error: err,
+        user: {},
+      })
+
+    // If user found, return no erros and user
+    res.status(200).json({
+      error: err,
+      user: user,
+    })
   })
 })
