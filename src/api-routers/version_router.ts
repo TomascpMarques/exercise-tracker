@@ -13,18 +13,9 @@ import { userAPI, userApiDefenition } from './api-users/v1/api_defenition'
 
 import * as swaggerUi from 'swagger-ui-express'
 import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerSpecs from './swagger_options.json'
 
-const swaggerOptions: swaggerJSDoc.Options = {
-   definition: {
-      openapi: '3.0.0',
-      info: {
-         title: 'Exercise API',
-         version: '1.0.0',
-      },
-      servers: [{ url: 'http://localhost:5000' }],
-   },
-   apis: ['./src/api-routers/api-users/v1/api_implementation.ts'],
-}
+const swaggerOptions: swaggerJSDoc.Options = swaggerSpecs
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions)
 

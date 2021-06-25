@@ -1,0 +1,23 @@
+{
+  "definition": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Exercise API",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http: //localhost:5000"
+      }
+    ],
+    "tags": [
+      {
+        "name": "users",
+        "description": "Operations on users"
+      }
+    ]
+  },
+  "apis": [
+    "./src/api-routers/**/*.ts"
+  ]
+}
