@@ -1,3 +1,5 @@
 # Exercise tracker api
 
-# Wow so empty
+## Documentation
+
+The API documentation is on the path /api-docs (when server is up)
