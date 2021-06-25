@@ -36,7 +36,7 @@ usersApi.route('/').get(async (_req, res) => {
 
 /**
  * @swagger
- * /api/v1/users/{id}:
+ * /api/v1/users/user/{id}:
  *  get:
  *    tags:
  *      - users
@@ -63,7 +63,7 @@ usersApi.route('/').get(async (_req, res) => {
  *            schema:
  *              $ref: "#/components/schemas/UserNotFound"
  */
-usersApi.route('/:id').get(async (req, res) => {
+usersApi.route('/user/:id').get(async (req, res) => {
   // get the users ID from the request route, like it more this way
   const userID = req.params.id
   // async get user by mongoDB id, not a taylor-made one
@@ -81,4 +81,8 @@ usersApi.route('/:id').get(async (req, res) => {
       user: user,
     })
   })
+})
+
+usersApi.route('/query').get((req, res) => {
+  res.json(req.query)
 })
