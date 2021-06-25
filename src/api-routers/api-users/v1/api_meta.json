@@ -1,6 +1,6 @@
 {
    "version": "v1",
    "entrypoint": "users",
-   "url": "/users/v1",
+   "url": "/v1/users",
    "description": "Manages the 'exercising' done by the user"
 }

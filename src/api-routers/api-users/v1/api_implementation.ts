@@ -12,7 +12,7 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
 
 /**
  * @swagger
- * /api/users/v1/:
+ * /api/v1/users/:
  *  get:
  *    tags:
  *      - users
@@ -36,7 +36,7 @@ usersApi.route('/').get(async (_req, res) => {
 
 /**
  * @swagger
- * /api/users/v1/{id}:
+ * /api/v1/users/{id}:
  *  get:
  *    tags:
  *      - users
