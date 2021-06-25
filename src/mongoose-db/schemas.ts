@@ -1,11 +1,27 @@
-import mongoose from 'mongoose'
+import mongoose, { model, Model } from 'mongoose'
 
-const userSchema = new mongoose.Schema({
+interface IUser {
+  favorite_exercise: string
+  country: string
+  usrName: string
+  name: string
+  age: number
+}
+
+interface IUserModel extends Model<IUser> {
+  greeting(): string
+}
+
+const userSchema = new mongoose.Schema<IUser>({
   favorite_exercise: String,
   country: String,
-  usrName: String,
-  name: String,
+  usrName: { type: String, required: true },
+  name: { type: String, required: true },
   age: Number,
 })
 
-export const User = mongoose.model('User', userSchema)
+userSchema.methods.greeting = function (this: IUser) {
+  return `Hello, I'm ${this.name}, I live in ${this.country}, and like to do ${this.favorite_exercise}`
+}
+
+export const User = model<IUser, IUserModel>('User', userSchema)
