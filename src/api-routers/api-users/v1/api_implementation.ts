@@ -9,10 +9,18 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
    next()
 })
 
-// The 404 page for the api
-usersApi.route('*').get((_req, res) => {
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     description: Welcome to swagger-jsdoc!
+ *     responses:
+ *       200:
+ *         description: Returns a mysterious string.
+ */
+usersApi.route('/').get((_req, res) => {
    res.status(200).json({
-      error: 404,
-      message: 'endpoint not available',
+      error: 'none',
+      message: 'Hello ther',
    })
 })
