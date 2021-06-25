@@ -52,16 +52,26 @@ usersApi.route('/').get(async (_req, res) => {
  *    responses:
  *      200:
  *        description: Returns the users data from the DB
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/FoundUser"
  *      404:
- *        description: Returns a json object with a not found error
+ *        description: Returns the users data from the DB
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/UserNotFound"
  */
 usersApi.route('/:id').get(async (req, res) => {
+  // get the users ID from the request route, like it more this way
   const userID = req.params.id
+  // async get user by mongoDB id, not a taylor-made one
   await UserModel.findById(userID, (err: any, user: IUser) => {
     // If user is not fiund, return an error and an empty object
     if (err)
       res.status(404).json({
-        error: err,
+        error: err.message,
         user: {},
       })
 
@@ -72,3 +82,44 @@ usersApi.route('/:id').get(async (req, res) => {
     })
   })
 })
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    FoundUser:
+ *      type: object
+ *      properties:
+ *        error:
+ *          type: string
+ *          description: Operation error
+ *        user:
+ *          $ref: '#/components/schemas/User'
+ *    UserNotFound:
+ *      type: object
+ *      properties:
+ *        error:
+ *          type: string
+ *          description: Operation error
+ *        user:
+ *          type: object
+ *          description: Empty user object
+ *    User:
+ *      type: object
+ *      properties:
+ *        favorite_exercise:
+ *          type: string
+ *        country:
+ *          type: string
+ *        usrName:
+ *          type: string
+ *        name:
+ *          type: object
+ *          properties:
+ *            first:
+ *              type: string
+ *            last:
+ *              type: string
+ *        age:
+ *          type: number
+ */
