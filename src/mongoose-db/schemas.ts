@@ -1,6 +1,6 @@
-import mongoose, { Model, Document } from 'mongoose'
+import mongoose, { Model } from 'mongoose'
 
-export interface IUser extends Document {
+export interface IUser {
   favorite_exercise: string
   country: string
   usrName: string
