@@ -36,6 +36,6 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
 usersApi.route('/').get((_req, res) => {
   res.status(200).json({
     error: 'none',
-    message: 'Hello ther',
+    message: 'Hello there',
   })
 })
