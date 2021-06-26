@@ -2,6 +2,27 @@
  * @swagger
  * components:
  *  parameters:
+ *    usersFavExerciseParam:
+ *      name: favoriteExercise
+ *      in: query
+ *      description: Users favorite exercise
+ *      required: false
+ *      schema:
+ *        type: string
+ *    userCountryParam:
+ *      name: country
+ *      in: query
+ *      description: Users country
+ *      required: false
+ *      schema:
+ *        type: string
+ *    userNameParam:
+ *      name: usrName
+ *      in: query
+ *      description: Users platform name
+ *      required: false
+ *      schema:
+ *        type: string
  *    userAgeParam:
  *      name: age
  *      in: query
@@ -24,7 +45,6 @@
  *                type: string
  *              last:
  *                type: string
- *
  *  schemas:
  *    FoundUser:
  *      type: object

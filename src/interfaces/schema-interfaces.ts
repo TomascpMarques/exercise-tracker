@@ -8,5 +8,5 @@ export interface IUserUrlQuerys {
     first?: string
     last?: string
   }
-  age?: string
+  age?: number
 }

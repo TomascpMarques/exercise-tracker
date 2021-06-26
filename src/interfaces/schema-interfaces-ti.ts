@@ -12,7 +12,7 @@ export const IUserUrlQuerys = t.iface([], {
     "first": t.opt("string"),
     "last": t.opt("string"),
   })),
-  "age": t.opt("string"),
+  "age": t.opt("number"),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
