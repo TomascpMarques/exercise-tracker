@@ -1,7 +1,7 @@
 import express from 'express'
 import { UserModel } from '../../../mongoose-db/schemas'
 import { createCheckers } from 'ts-interface-checker'
-import schemaInterface from '../../../interfaces/schema-interfaces-ti'
+import schemaInterfaceTi from '../../../interfaces/schema-interfaces-ti'
 import { IUser } from '../../../mongoose-db/schema-interfaces'
 import { Error } from 'mongoose'
 
@@ -72,7 +72,7 @@ usersApi.route('/user/:id').get(async (req, res) => {
   // get the users ID from the request route, like it more this way
   const userID = req.params.id
   // async get user by mongoDB id, not a taylor-made one
-  await UserModel.findById(userID, (err: any, user: IUser) => {
+  await UserModel.findById(userID, (err: Error, user: IUser) => {
     // If user is not fiund, return an error and an empty object
     if (err)
       res.status(404).json({
@@ -85,5 +85,79 @@ usersApi.route('/user/:id').get(async (req, res) => {
       error: err,
       user: user,
     })
+  })
+})
+
+/**
+ * @swagger
+ * /api/v1/users/findByName?:
+ *  get:
+ *    tags:
+ *      - users
+ *    summary: Returns a list of users based on the given name
+ *    description: Takes the first and last name from the req.query,
+ *                 creates a regex for both ('\S+' for empty values),
+ *                 then compares the regex to the names, first and last fields
+ *                 then returns the regex matched values
+ *    parameters:
+ *      - in: query
+ *        $ref: '#/components/parameters/usersFirstNameParam'
+ *      - in: query
+ *        $ref: '#/components/parameters/usersLastNameParam'
+ *    responses:
+ *      200:
+ *        description: Return the query matched users
+ *      400:
+ *        description: Returns no users, and a bad param message
+ *      404:
+ *        description: Returns no errors, and no found users
+ */
+usersApi.route('/findByName').get(async (req, res) => {
+  // Checks for empyt query, returns if so
+  if (!Object.keys(req.query).length) {
+    return res.status(400).json({
+      error: 'No empty querys',
+    })
+  }
+
+  // Check the validati of the req.query values,
+  // Against the expected values, described in a interface
+  const { IFindByNameURLQuery } = createCheckers(schemaInterfaceTi)
+  try {
+    IFindByNameURLQuery.strictCheck(req.query)
+  } catch (err) {
+    console.log(err)
+    return res.status(400).json({ error: 'Bad parameters' })
+  }
+
+  // This neat little trick, uses regex to get the results
+  // that are most similar to the requested one,
+  // even with incomplete data, i.e. just first or last name
+  // even when thei are incomplete, i.e name = 'aaaa',
+  // and the given name was 'aa'.
+  const firstNameRegex = new RegExp(
+    `${req.query.first?.length ? req.query.first : `\\S+`}`,
+    'i'
+  )
+  const lastNameRegex = new RegExp(
+    `${req.query.last ? req.query.last : `\\S+`}`,
+    'i'
+  )
+
+  console.log(firstNameRegex, lastNameRegex)
+
+  // The type sistem in Ts, wont allow to pass the regex in the default object
+  // So, the object properties need to be like this do to regex
+  return await UserModel.find({
+    'name.first': firstNameRegex,
+    'name.last': lastNameRegex,
+  }).exec((err: Error, users: IUser[]) => {
+    // Case for errors in search
+    if (err) return res.status(400).json({ error: err.message, results: users })
+    // Case for no results in search
+    if (users.length < 1)
+      return res.status(404).json({ error: 'no found users', results: [] })
+    // Case for succesfull search operation
+    return res.status(200).json({ error: null, results: users })
   })
 })

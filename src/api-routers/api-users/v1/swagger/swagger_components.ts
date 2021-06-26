@@ -30,21 +30,21 @@
  *      required: false
  *      schema:
  *        type: string
- *    usersNameParam:
- *      name: name
+ *    usersFirstNameParam:
+ *      name: first
  *      in: query
- *      description: Users name object
+ *      description: Users first name
  *      required: false
  *      schema:
- *        type: object
- *        properties:
- *          name:
- *            type: object
- *            properties:
- *              first:
- *                type: string
- *              last:
- *                type: string
+ *        type: string
+ *    usersLastNameParam:
+ *      name: last
+ *      in: query
+ *      description: Users last name
+ *      required: false
+ *      schema:
+ *        type: string
+ *
  *  schemas:
  *    FoundUser:
  *      type: object
