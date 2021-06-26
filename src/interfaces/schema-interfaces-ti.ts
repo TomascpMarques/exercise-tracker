@@ -5,14 +5,14 @@ import * as t from "ts-interface-checker";
 // tslint:disable:object-literal-key-quotes
 
 export const IUserUrlQuerys = t.iface([], {
-  "favorite_exercise": t.opt("string"),
+  "favoriteExercise": t.opt("string"),
   "country": t.opt("string"),
   "usrName": t.opt("string"),
   "name": t.opt(t.iface([], {
     "first": t.opt("string"),
     "last": t.opt("string"),
   })),
-  "age": t.opt("number"),
+  "age": t.opt("string"),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {

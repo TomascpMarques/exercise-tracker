@@ -87,14 +87,39 @@ usersApi.route('/user/:id').get(async (req, res) => {
   })
 })
 
+/**
+ * @swagger
+ * /api/v1/users/query?test={asd}:
+ *  get:
+ *   tags:
+ *    - users
+ *   summary: Returns a custom list of users
+ *   description: The list of users that match the complete/not route query params
+ *   response:
+ *     200:
+ *      description: Returns a list of compatible users
+ *     400:
+ *      description: Returns an error message
+ *     404:
+ *      description: Returns a message saying no users were found
+ */
 usersApi.route('/query').get((req, res) => {
-  const { IUserUrlQuerys } = createCheckers(schemaInterface)
+  if (!Object.keys(req.query).length) {
+    // Guards against no query values
+    return res.status(400).json({ error: 'Must have at least one param' })
+  }
 
+  // Gets the vlidator/interface for the expected values
+  const { IUserUrlQuerys } = createCheckers(schemaInterface)
   try {
-    IUserUrlQuerys.check(req.query)
+    // Verefies if it has all the necessery values
+    IUserUrlQuerys.strictCheck(req.query)
   } catch (err) {
+    // If the values are in some way "unexpected", cathces the err here
     console.log('invalid parameters')
     return res.status(400).json({ error: 'Invalid query parameters' })
   }
+
+  // If all is good
   return res.json(req.query)
 })
