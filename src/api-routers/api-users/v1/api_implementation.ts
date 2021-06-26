@@ -89,13 +89,18 @@ usersApi.route('/user/:id').get(async (req, res) => {
 
 /**
  * @swagger
- * /api/v1/users/query?test={asd}:
+ * /api/v1/users/query?name=name:&age=number:
  *  get:
  *   tags:
  *    - users
  *   summary: Returns a custom list of users
- *   description: The list of users that match the complete/not route query params
- *   response:
+ *   description: The list of users that match the route query params
+ *   parameters :
+ *    - in: query
+ *      $ref: "#/components/parameters/userAgeParam"
+ *    - in: query
+ *      $ref: "#/components/parameters/usersNameParam"
+ *   responses:
  *     200:
  *      description: Returns a list of compatible users
  *     400:
@@ -121,5 +126,5 @@ usersApi.route('/query').get((req, res) => {
   }
 
   // If all is good
-  return res.json(req.query)
+  return res.status(200).json(req.query)
 })

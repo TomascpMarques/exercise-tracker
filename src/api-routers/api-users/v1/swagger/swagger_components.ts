@@ -1,6 +1,30 @@
 /**
  * @swagger
  * components:
+ *  parameters:
+ *    userAgeParam:
+ *      name: age
+ *      in: query
+ *      description: Users age
+ *      required: false
+ *      schema:
+ *        type: string
+ *    usersNameParam:
+ *      name: name
+ *      in: query
+ *      description: Users name object
+ *      required: false
+ *      schema:
+ *        type: object
+ *        properties:
+ *          name:
+ *            type: object
+ *            properties:
+ *              first:
+ *                type: string
+ *              last:
+ *                type: string
+ *
  *  schemas:
  *    FoundUser:
  *      type: object
