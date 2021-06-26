@@ -4,18 +4,18 @@
 import * as t from "ts-interface-checker";
 // tslint:disable:object-literal-key-quotes
 
-export const IUser = t.iface([], {
+export const IUserUrlQuerys = t.iface([], {
   "favorite_exercise": t.opt("string"),
   "country": t.opt("string"),
-  "usrName": "string",
-  "name": t.iface([], {
-    "first": "string",
-    "last": "string",
-  }),
+  "usrName": t.opt("string"),
+  "name": t.opt(t.iface([], {
+    "first": t.opt("string"),
+    "last": t.opt("string"),
+  })),
   "age": t.opt("number"),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
-  IUser,
+  IUserUrlQuerys,
 };
 export default exportedTypeSuite;

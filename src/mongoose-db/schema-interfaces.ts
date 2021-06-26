@@ -1,3 +1,4 @@
+// Interface describes a user, its used in mongoose schemas
 export interface IUser {
   favorite_exercise?: string
   country?: string

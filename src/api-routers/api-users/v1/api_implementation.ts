@@ -1,6 +1,9 @@
 import express from 'express'
-import { IUser } from '../../../mongoose-db/schema-interfaces'
 import { UserModel } from '../../../mongoose-db/schemas'
+import { createCheckers } from 'ts-interface-checker'
+import schemaInterface from '../../../interfaces/schema-interfaces-ti'
+import { IUser } from '../../../mongoose-db/schema-interfaces'
+
 // Api router defenition
 export const usersApi = express.Router()
 
@@ -85,5 +88,13 @@ usersApi.route('/user/:id').get(async (req, res) => {
 })
 
 usersApi.route('/query').get((req, res) => {
-  res.json(req.query)
+  const { IUserUrlQuerys } = createCheckers(schemaInterface)
+
+  try {
+    IUserUrlQuerys.check(req.query)
+  } catch (err) {
+    console.log('invalid parameters')
+    return res.status(400).json({ error: 'Invalid query parameters' })
+  }
+  return res.json(req.query)
 })
