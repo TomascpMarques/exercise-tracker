@@ -1,5 +1,6 @@
 import express from 'express'
-import { IUser, UserModel } from '../../../mongoose-db/schemas'
+import { IUser } from '../../../mongoose-db/schema-interfaces'
+import { UserModel } from '../../../mongoose-db/schemas'
 // Api router defenition
 export const usersApi = express.Router()
 

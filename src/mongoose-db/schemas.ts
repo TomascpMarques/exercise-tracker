@@ -1,15 +1,5 @@
 import mongoose, { Model, Schema } from 'mongoose'
-
-export interface IUser {
-  favorite_exercise?: string
-  country?: string
-  usrName: string
-  name: {
-    first: string
-    last: string
-  }
-  age?: number
-}
+import { IUser } from './schema-interfaces'
 
 const userSchema = new mongoose.Schema<IUser>({
   favorite_exercise: { type: String },

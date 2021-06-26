@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "`npm bin`/ts-interface-builder ./src/mongoose-db/schema-interfaces.ts; nodemon --exec ts-node src/index.ts",
     "server": "ts-node src/index.ts"
   },
   "keywords": [],
@@ -22,6 +22,8 @@
     "openapi-types": "^9.0.3",
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.1.6",
+    "ts-interface-builder": "^0.3.0",
+    "ts-interface-checker": "^1.0.0",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4"
   },
