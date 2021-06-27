@@ -1,3 +1,7 @@
+/**
+ * Check the end of the file for info/notes
+ */
+
 import express from 'express'
 import { UserModel } from '../../../mongoose-db/schemas'
 import { createCheckers } from 'ts-interface-checker'
@@ -222,3 +226,10 @@ usersApi.route('/findByCountry').get(async (req, res) => {
     }
   )
 })
+
+/**
+ * Notes:
+ *  By using regex in the fields instead of a single fix value, allows
+ *  the endpoint to be used in "real-time", wich means as the user is typping
+ *  the api car return simillar or exact results to what is being sent.
+ */
