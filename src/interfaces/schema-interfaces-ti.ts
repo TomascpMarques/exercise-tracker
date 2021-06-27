@@ -10,15 +10,23 @@ export const IFindByNameURLQuery = t.iface([], {
 });
 
 export const IFindByCountryURLQuery = t.iface([], {
+  "country": "string",
+});
+
+export const IRegisterUserReferenceIUser = t.iface([], {
+  "favorite_exercise": t.opt("string"),
   "country": t.opt("string"),
-  "order": t.opt(t.iface([], {
-    "field": "string",
-    "directions": t.opt(t.union(t.lit('asc'), t.lit('des'))),
-  })),
+  "usrName": "string",
+  "name": t.iface([], {
+    "first": "string",
+    "last": "string",
+  }),
+  "age": t.opt("number"),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
   IFindByNameURLQuery,
   IFindByCountryURLQuery,
+  IRegisterUserReferenceIUser,
 };
 export default exportedTypeSuite;

@@ -10,13 +10,89 @@ import { IUser } from '../../../mongoose-db/schema-interfaces'
 import { Error } from 'mongoose'
 
 // Api router defenition
-export const usersApi = express.Router()
+export const usersApi = express.Router().use(express.json())
 
 // All routes pass through here, this logs the method, path and ip
 // given by the req parameter
 usersApi.use((req: express.Request, _res: express.Response, next: any) => {
   console.log(`${req.method} @ ${req.path} by ${req.ip}`)
   next()
+})
+
+/**
+ * @swagger
+ * /api/v1/users/register:
+ *  post:
+ *    tags:
+ *      - users
+ *    summary: Registers a user
+ *    description: Uses the post request json body to validate the given user
+ *                 then, inserts the new user in the database
+ *    requestBody:
+ *      description: New users content
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/User'
+ *    responses:
+ *      200:
+ *        description: Returns a success message with descriptive content
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/SuccessfulUserRegister'
+ *      400:
+ *        description: Returns the erro cause in a message
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              example: {"error": "error here"}
+ *      500:
+ *        description: Internal server error, and no response body
+ */
+usersApi.route('/register').post(async (req, res) => {
+  const { IRegisterUserReferenceIUser } = createCheckers(schemaInterfaceTi)
+  try {
+    IRegisterUserReferenceIUser.strictCheck(req.body)
+  } catch (err: any) {
+    return res.status(400).json({ error: err })
+  }
+
+  const newUser: IUser = req.body
+  if (newUser.usrName.match(/\W+/gm))
+    res.status(400).json({
+      error: 'User name must no contain spaces or special characters',
+    })
+
+  if (newUser.usrName.length < 6 || newUser.usrName.length > 16)
+    res.status(400).json({
+      error: 'User name must be between 6 and 16 characters',
+    })
+
+  await UserModel.findOne({ usrName: newUser.usrName }).exec(
+    (err: Error, result: IUser | null) => {
+      if (err)
+        return res.status(500).json({
+          error: err.message,
+        })
+      else if (result)
+        return res.status(400).json({
+          error: 'User already exists',
+        })
+
+      return null
+    }
+  )
+
+  const user = await (await UserModel.create(req.body)).save()
+  if (user.errors)
+    return res.status(500).json({
+      error: user.errors.message,
+      errorName: user.errors.name,
+    })
+
+  return res.status(200).json({ error: null, userId: user.id })
 })
 
 /**
@@ -39,8 +115,26 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
  */
 usersApi.route('/').get(async (_req, res) => {
   // Get all users from DB
-  const users: IUser[] = await UserModel.find().exec()
-  res.status(200).json(users)
+  await UserModel.find().exec((err: Error, users: IUser[]) => {
+    // Internal server error in search
+    if (err)
+      return res.status(500).json({
+        error: err.message,
+      })
+
+    // No users in the DB
+    if (users.length < 1)
+      return res.status(404).json({
+        message: 'No users in Registry',
+        result: users,
+      })
+
+    // All good in the serach
+    return res.status(200).json({
+      error: err,
+      result: users,
+    })
+  })
 })
 
 /**

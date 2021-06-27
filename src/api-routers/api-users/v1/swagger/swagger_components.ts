@@ -95,4 +95,13 @@
  *              type: string
  *        age:
  *          type: number
+ *    SuccessfulUserRegister:
+ *      type: object
+ *      properties:
+ *        error:
+ *          type: string
+ *          description: Relates any errors and their probable causes
+ *        userID:
+ *          type: string
+ *          description: Register users ID
  */
