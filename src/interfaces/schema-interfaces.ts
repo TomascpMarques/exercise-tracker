@@ -4,9 +4,5 @@ export interface IFindByNameURLQuery {
 }
 
 export interface IFindByCountryURLQuery {
-  country?: string
-  order?: {
-    field: string
-    directions?: 'asc' | 'des'
-  }
+  country: string
 }

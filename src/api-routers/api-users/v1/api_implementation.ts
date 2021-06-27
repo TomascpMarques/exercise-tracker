@@ -168,6 +168,11 @@ usersApi.route('/findByName').get(async (req, res) => {
  *      - users
  *    summary: Return list of users based on given country name
  *    description: Returns the users wich the country matches the given one
+ *    parameters:
+ *      - in: query
+ *        name: country
+ *        type: string
+ *        description: Users country name
  *    responses:
  *      200:
  *        description: Return the query matched users
@@ -175,7 +180,6 @@ usersApi.route('/findByName').get(async (req, res) => {
  *        description: Returns no users, and a bad param message
  *      404:
  *        description: Returns no errors, and no found users
- *
  */
 usersApi.route('/findByCountry').get(async (req, res) => {
   // Checks for empyt query, returns if so
@@ -195,21 +199,10 @@ usersApi.route('/findByCountry').get(async (req, res) => {
     return res.status(400).json({ error: 'Bad parameters' })
   }
 
-  // Defines the custom contry query with a bit of verifying
-  interface countryURLQuery {
-    country?: string
-    order?: {
-      // Either a key of user, so it uses existing fields
-      // if no existing fields are used, defaults to country
-      field: keyof IUser | 'country'
-      direction?: 'asc' | 'des'
-    }
-  }
-  // Avois using < varX as typeY >, and gices auto complete
-  const countryQuery: countryURLQuery = req.query
+  const countryRegex = new RegExp(`^${req.query.country}`, 'i')
 
   // Finds the users that equal or ar simillar to the users country
-  return await UserModel.find({ country: countryQuery.country }).exec(
+  return await UserModel.find({ country: countryRegex }).exec(
     (err: Error, users: IUser[]) => {
       // Error handeling
       if (err)
@@ -224,9 +217,7 @@ usersApi.route('/findByCountry').get(async (req, res) => {
       // All good in the search for users
       return res.status(200).json({
         error: null,
-        results: users
-          .filter((user) => user.country === countryQuery.country)
-          .sort(),
+        results: users,
       })
     }
   )

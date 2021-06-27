@@ -44,6 +44,20 @@
  *      required: false
  *      schema:
  *        type: string
+ *    urlQueryOrdering:
+ *      name: order
+ *      in: query
+ *      description: Ordering of the querys results
+ *      schema:
+ *        type: object
+ *        properties:
+ *          order:
+ *            type: object
+ *            properties:
+ *              field:
+ *                type: string
+ *              direction:
+ *                type: string
  *
  *  schemas:
  *    FoundUser:
