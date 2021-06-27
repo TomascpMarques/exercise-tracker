@@ -9,7 +9,16 @@ export const IFindByNameURLQuery = t.iface([], {
   "last": t.opt("string"),
 });
 
+export const IFindByCountryURLQuery = t.iface([], {
+  "country": t.opt("string"),
+  "order": t.opt(t.iface([], {
+    "field": "string",
+    "directions": t.opt(t.union(t.lit('asc'), t.lit('des'))),
+  })),
+});
+
 const exportedTypeSuite: t.ITypeSuite = {
   IFindByNameURLQuery,
+  IFindByCountryURLQuery,
 };
 export default exportedTypeSuite;

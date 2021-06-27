@@ -41,7 +41,7 @@ usersApi.route('/').get(async (_req, res) => {
 
 /**
  * @swagger
- * /api/v1/users/user/{id}:
+ * /api/v1/users/findByID/{id}:
  *  get:
  *    tags:
  *      - users
@@ -68,20 +68,20 @@ usersApi.route('/').get(async (_req, res) => {
  *            schema:
  *              $ref: "#/components/schemas/UserNotFound"
  */
-usersApi.route('/user/:id').get(async (req, res) => {
+usersApi.route('/findByID/:id').get(async (req, res) => {
   // get the users ID from the request route, like it more this way
   const userID = req.params.id
   // async get user by mongoDB id, not a taylor-made one
   await UserModel.findById(userID, (err: Error, user: IUser) => {
     // If user is not fiund, return an error and an empty object
     if (err)
-      res.status(404).json({
+      return res.status(404).json({
         error: err.message,
         user: {},
       })
 
     // If user found, return no erros and user
-    res.status(200).json({
+    return res.status(200).json({
       error: err,
       user: user,
     })
@@ -96,7 +96,7 @@ usersApi.route('/user/:id').get(async (req, res) => {
  *      - users
  *    summary: Returns a list of users based on the given name
  *    description: Takes the first and last name from the req.query,
- *                 creates a regex for both ('\S+' for empty values),
+ *                 creates a regex for both ('\S+', matches all none spaces),
  *                 then compares the regex to the names, first and last fields
  *                 then returns the regex matched values
  *    parameters:
@@ -120,7 +120,7 @@ usersApi.route('/findByName').get(async (req, res) => {
     })
   }
 
-  // Check the validati of the req.query values,
+  // Check the validaty of the req.query values,
   // Against the expected values, described in a interface
   const { IFindByNameURLQuery } = createCheckers(schemaInterfaceTi)
   try {
@@ -144,8 +144,6 @@ usersApi.route('/findByName').get(async (req, res) => {
     'i'
   )
 
-  console.log(firstNameRegex, lastNameRegex)
-
   // The type sistem in Ts, wont allow to pass the regex in the default object
   // So, the object properties need to be like this do to regex
   return await UserModel.find({
@@ -160,4 +158,76 @@ usersApi.route('/findByName').get(async (req, res) => {
     // Case for succesfull search operation
     return res.status(200).json({ error: null, results: users })
   })
+})
+
+/**
+ * @swagger
+ * /api/v1/users/findByCountry?:
+ *  get:
+ *    tags:
+ *      - users
+ *    summary: Return list of users based on given country name
+ *    description: Returns the users wich the country matches the given one
+ *    responses:
+ *      200:
+ *        description: Return the query matched users
+ *      400:
+ *        description: Returns no users, and a bad param message
+ *      404:
+ *        description: Returns no errors, and no found users
+ *
+ */
+usersApi.route('/findByCountry').get(async (req, res) => {
+  // Checks for empyt query, returns if so
+  if (!Object.keys(req.query).length) {
+    return res.status(400).json({
+      error: 'No empty querys',
+    })
+  }
+
+  // Check the validaty of the req.query values,
+  // Against the expected values, described in a interface
+  const { IFindByCountryURLQuery } = createCheckers(schemaInterfaceTi)
+  try {
+    IFindByCountryURLQuery.check(req.query)
+  } catch (err) {
+    console.log(err)
+    return res.status(400).json({ error: 'Bad parameters' })
+  }
+
+  // Defines the custom contry query with a bit of verifying
+  interface countryURLQuery {
+    country?: string
+    order?: {
+      // Either a key of user, so it uses existing fields
+      // if no existing fields are used, defaults to country
+      field: keyof IUser | 'country'
+      direction?: 'asc' | 'des'
+    }
+  }
+  // Avois using < varX as typeY >, and gices auto complete
+  const countryQuery: countryURLQuery = req.query
+
+  // Finds the users that equal or ar simillar to the users country
+  return await UserModel.find({ country: countryQuery.country }).exec(
+    (err: Error, users: IUser[]) => {
+      // Error handeling
+      if (err)
+        return res.status(500).json({
+          error: err.message,
+        })
+
+      // 404 for no users
+      if (users.length < 1)
+        return res.status(404).json({ error: null, message: 'No users Found' })
+
+      // All good in the search for users
+      return res.status(200).json({
+        error: null,
+        results: users
+          .filter((user) => user.country === countryQuery.country)
+          .sort(),
+      })
+    }
+  )
 })
