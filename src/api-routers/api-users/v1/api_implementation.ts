@@ -49,18 +49,34 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
  *              type: object
  *              example: {"error": "error here"}
  *      500:
- *        description: Internal server error, and no response body
+ *        description: Internal server error, and error message
  */
 usersApi.route('/register').post(async (req, res) => {
+  // Checks for empyt query, returns if so
+  if (!Object.keys(req.query).length) {
+    return res.status(400).json({
+      error: 'No empty querys',
+    })
+  }
+
+  // Checks given data for errors, and structure validatiy
   const { IRegisterUserReferenceIUser } = createCheckers(schemaInterfaceTi)
   try {
+    // Strict check is very nice,
+    // better at preventing errors than .check()
     IRegisterUserReferenceIUser.strictCheck(req.body)
   } catch (err: any) {
+    // If there were any errors, means that it was bad data
+    // So invalid request status
     return res.status(400).json({ error: err })
   }
 
+  // Get the new users data from the request body
   const newUser: IUser = req.body
+
+  // Mandatory checks for existing users
   if (newUser.usrName.match(/\W+/gm))
+    // The usrName cant have no special chars or spaces
     res.status(400).json({
       error: 'User name must no contain spaces or special characters',
     })
@@ -70,28 +86,38 @@ usersApi.route('/register').post(async (req, res) => {
       error: 'User name must be between 6 and 16 characters',
     })
 
+  // Trys to find a user with that userName,
+  // If so, no user will be created
   await UserModel.findOne({ usrName: newUser.usrName }).exec(
     (err: Error, result: IUser | null) => {
+      // Checks for internal errors
       if (err)
         return res.status(500).json({
           error: err.message,
         })
-      else if (result)
+
+      // Checks for existing user
+      if (result)
         return res.status(400).json({
           error: 'User already exists',
         })
 
+      // If there are no users and errors
+      // Then the user will be created
       return null
     }
   )
 
+  // New user document creation and upload to the data.base
   const user = await (await UserModel.create(req.body)).save()
+  // Error checking
   if (user.errors)
     return res.status(500).json({
       error: user.errors.message,
       errorName: user.errors.name,
     })
 
+  // If all succedes, the return no errors, and the new users ID
   return res.status(200).json({ error: null, userId: user.id })
 })
 
@@ -167,10 +193,16 @@ usersApi.route('/').get(async (_req, res) => {
  *              $ref: "#/components/schemas/UserNotFound"
  */
 usersApi.route('/findByID/:id').get(async (req, res) => {
+  // Checks for empyt query, returns if so
+  if (!Object.keys(req.query).length) {
+    return res.status(400).json({
+      error: 'No empty querys',
+    })
+  }
   // get the users ID from the request route, like it more this way
   const userID = req.params.id
   // async get user by mongoDB id, not a taylor-made one
-  await UserModel.findById(userID, (err: Error, user: IUser) => {
+  return await UserModel.findById(userID, (err: Error, user: IUser) => {
     // If user is not fiund, return an error and an empty object
     if (err)
       return res.status(404).json({
