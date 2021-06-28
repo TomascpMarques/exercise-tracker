@@ -158,7 +158,7 @@ usersApi.route('/').get(async (_req, res) => {
     // All good in the serach
     return res.status(200).json({
       error: err,
-      result: users,
+      result: users.sort(),
     })
   })
 })
@@ -286,7 +286,7 @@ usersApi.route('/findByName').get(async (req, res) => {
     if (users.length < 1)
       return res.status(404).json({ error: 'no found users', results: [] })
     // Case for succesfull search operation
-    return res.status(200).json({ error: null, results: users })
+    return res.status(200).json({ error: null, results: users.sort() })
   })
 })
 
@@ -354,8 +354,74 @@ usersApi.route('/findByCountry').get(async (req, res) => {
 })
 
 /**
+ * @swagger
+ * /api/v1/users/findByUsrName/{name}:
+ *  get:
+ *    tags:
+ *      - users
+ *    summary: Returns users with the specific or most similar user name
+ *    description: Finds the user by the given usrName, but aslo allows for live
+ *                 search, meaning, it can return users with a similar usr name
+ *                 or equal usrName while typing. Allows partial usrNames, there
+ *                 for the regex used for name searching is case insenssitive.
+ *                 Avoid using if you need an exact match.
+ *    parameters:
+ *      - in: path
+ *        name: name
+ *        type: string
+ *        description: The wantted users name
+ *    responses:
+ *      200:
+ *        description: Returns a list or a single profile of the wantted user
+ *      404:
+ *        description: Returns no users, and a "no users found" message
+ *      400:
+ *        description: Returns a error of bad parameters and no users
+ *      500:
+ *        description: Internal server error
+ */
+usersApi.route('/findByUsrName/:name').get(async (req, res) => {
+  // Verifies is the necessary param exists
+  if (!req.params.name) {
+    res.status(400).json({
+      error: 'No empty parameters',
+    })
+  }
+
+  // Allows the search to return simmilar values
+  const userName = new RegExp(`^${req.params.name}`, 'i')
+
+  // Starts the search for the useer
+  await UserModel.find({ usrName: userName }).exec(
+    (err: Error, users: IUser[]) => {
+      // Internal server error handeling
+      if (err)
+        return res.status(500).json({
+          error: err.message,
+        })
+
+      // No found users
+      if (users.length < 1)
+        return res.status(404).json({
+          error: 'No users found for given (or similar) name',
+          results: users,
+        })
+
+      // Found users
+      return res.status(200).json({
+        error: null,
+        results: users.sort(),
+      })
+    }
+  )
+})
+
+/**
  * Notes:
  *  By using regex in the fields instead of a single fix value, allows
  *  the endpoint to be used in "real-time", wich means as the user is typping
  *  the api car return simillar or exact results to what is being sent.
+ *
+ *  The use of case insenssitive regex allow for greater freedom in searching for
+ *  ceairtan values, for example names
  */
