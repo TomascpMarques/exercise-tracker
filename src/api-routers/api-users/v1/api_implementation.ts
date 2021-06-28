@@ -53,7 +53,7 @@ usersApi.use((req: express.Request, _res: express.Response, next: any) => {
  */
 usersApi.route('/register').post(async (req, res) => {
   // Checks for empyt query, returns if so
-  if (!Object.keys(req.query).length) {
+  if (!Object.keys(req.body).length) {
     return res.status(400).json({
       error: 'No empty querys',
     })
@@ -77,36 +77,23 @@ usersApi.route('/register').post(async (req, res) => {
   // Mandatory checks for existing users
   if (newUser.usrName.match(/\W+/gm))
     // The usrName cant have no special chars or spaces
-    res.status(400).json({
+    return res.status(400).json({
       error: 'User name must no contain spaces or special characters',
     })
 
-  if (newUser.usrName.length < 6 || newUser.usrName.length > 16)
-    res.status(400).json({
-      error: 'User name must be between 6 and 16 characters',
+  if (newUser.usrName.length < 4 || newUser.usrName.length > 16)
+    return res.status(400).json({
+      error: 'User name must be between 4 and 16 characters',
     })
 
   // Trys to find a user with that userName,
   // If so, no user will be created
-  await UserModel.findOne({ usrName: newUser.usrName }).exec(
-    (err: Error, result: IUser | null) => {
-      // Checks for internal errors
-      if (err)
-        return res.status(500).json({
-          error: err.message,
-        })
-
-      // Checks for existing user
-      if (result)
-        return res.status(400).json({
-          error: 'User already exists',
-        })
-
-      // If there are no users and errors
-      // Then the user will be created
-      return null
-    }
-  )
+  const users = await UserModel.find({ usrName: newUser.usrName }).exec()
+  if (users.length >= 1) {
+    return res.status(400).json({
+      error: 'user already exists',
+    })
+  }
 
   // New user document creation and upload to the data.base
   const user = await (await UserModel.create(req.body)).save()
@@ -355,7 +342,7 @@ usersApi.route('/findByCountry').get(async (req, res) => {
 
 /**
  * @swagger
- * /api/v1/users/findByUsrName/{name}:
+ * /api/v1/users/findByUsrName/{usrName}:
  *  get:
  *    tags:
  *      - users
@@ -367,7 +354,7 @@ usersApi.route('/findByCountry').get(async (req, res) => {
  *                 Avoid using if you need an exact match.
  *    parameters:
  *      - in: path
- *        name: name
+ *        name: usrName
  *        type: string
  *        description: The wantted users name
  *    responses:
@@ -380,16 +367,16 @@ usersApi.route('/findByCountry').get(async (req, res) => {
  *      500:
  *        description: Internal server error
  */
-usersApi.route('/findByUsrName/:name').get(async (req, res) => {
+usersApi.route('/findByUsrName/:usrName').get(async (req, res) => {
   // Verifies is the necessary param exists
-  if (!req.params.name) {
+  if (!req.params.usrName) {
     res.status(400).json({
       error: 'No empty parameters',
     })
   }
 
   // Allows the search to return simmilar values
-  const userName = new RegExp(`^${req.params.name}`, 'i')
+  const userName = new RegExp(`^${req.params.usrName}`, 'i')
 
   // Starts the search for the useer
   await UserModel.find({ usrName: userName }).exec(
