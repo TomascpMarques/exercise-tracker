@@ -404,6 +404,61 @@ usersApi.route('/findByUsrName/:usrName').get(async (req, res) => {
 })
 
 /**
+ * @swagger
+ * /api/v1/users/findByAge/{age}:
+ *  get:
+ *   tags:
+ *    - users
+ *   summary: Returns a list of users based on the given age
+ *   parameters:
+ *    - in: path
+ *      name: age
+ *      type: string
+ *      description: Users age
+ *   responses:
+ *    200:
+ *      description: Returns a list or a single profile of users
+ *    404:
+ *      description: Returns no users, and a "no users found" message
+ *    400:
+ *      description: Returns a error of bad parameters and no users
+ *    500:
+ *      description: Internal server error
+ */
+usersApi.route('/findByAge/:age').get(async (req, res) => {
+  if (!req.params.age)
+    return res.status(400).json({
+      error: 'No empty parameters',
+    })
+
+  if (req.params.age.match(/\D+/gm))
+    return res.status(400).json({
+      error: 'The age should only contain numbers',
+    })
+
+  const targetAge = Number(req.params.age)
+  return await UserModel.find({ age: targetAge }).exec(
+    (err: Error, users: IUser[]) => {
+      if (err)
+        return res.status(500).json({
+          error: err.message,
+        })
+
+      if (users.length < 1)
+        return res.status(404).json({
+          error: 'No users found for given age',
+          results: {},
+        })
+
+      return res.status(200).json({
+        error: null,
+        results: users,
+      })
+    }
+  )
+})
+
+/**
  * Notes:
  *  By using regex in the fields instead of a single fix value, allows
  *  the endpoint to be used in "real-time", wich means as the user is typping
