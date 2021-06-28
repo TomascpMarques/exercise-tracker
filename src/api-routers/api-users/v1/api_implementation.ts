@@ -8,9 +8,18 @@ import { createCheckers } from 'ts-interface-checker'
 import schemaInterfaceTi from '../../../interfaces/schema-interfaces-ti'
 import { IUser } from '../../../mongoose-db/schema-interfaces'
 import { Error } from 'mongoose'
+import rateLimit from 'express-rate-limit'
 
 // Api router defenition
 export const usersApi = express.Router().use(express.json())
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 10,
+  message: 'Too many requests, please try again later.',
+})
+
+usersApi.use(limiter)
 
 // All routes pass through here, this logs the method, path and ip
 // given by the req parameter
@@ -426,17 +435,22 @@ usersApi.route('/findByUsrName/:usrName').get(async (req, res) => {
  *      description: Internal server error
  */
 usersApi.route('/findByAge/:age').get(async (req, res) => {
+  // Parameter validation
   if (!req.params.age)
     return res.status(400).json({
       error: 'No empty parameters',
     })
 
+  // Check the age param for malformed data
+  // only accept digits, nothing else
   if (req.params.age.match(/\D+/gm))
     return res.status(400).json({
       error: 'The age should only contain numbers',
     })
 
+  // Age conversion from number to string
   const targetAge = Number(req.params.age)
+
   return await UserModel.find({ age: targetAge }).exec(
     (err: Error, users: IUser[]) => {
       if (err)
@@ -450,6 +464,58 @@ usersApi.route('/findByAge/:age').get(async (req, res) => {
           results: {},
         })
 
+      return res.status(200).json({
+        error: null,
+        results: users,
+      })
+    }
+  )
+})
+
+/**
+ * @swagger
+ * /api/v1/users/findByExercise/{exercise}:
+ *  get:
+ *   tags:
+ *    - users
+ *   summary: Returns a list of users with simmilar or equal(text equalitty) exercises
+ *   responses:
+ *    200:
+ *      description: Returns a list or a single profile of users
+ *    404:
+ *      description: Returns no users, and a "no users found" message
+ *    400:
+ *      description: Returns a error of bad parameters and no users
+ *    500:
+ *      description: Internal server error
+ */
+usersApi.route('/findByExercise/:exercise').get(async (req, res) => {
+  // Verify if the needed params exist
+  if (!req.params.exercise)
+    return res.status(400).json({
+      error: 'No empty parameters',
+    })
+
+  // Create regex for inclussive search
+  const exerciseRegex = new RegExp(`^${req.params.exercise}`, 'i')
+
+  // Mongoose search in mongoDB
+  return await UserModel.find({ favorite_exercise: exerciseRegex }).exec(
+    (err: Error, users: IUser[]) => {
+      // Internal error handeling
+      if (err)
+        return res.status(500).json({
+          error: err.message,
+        })
+
+      // Handle no records found for the given search params
+      if (users.length < 1)
+        return res.status(404).json({
+          error: 'No users found for given exercise',
+          results: {},
+        })
+
+      // Seuccesful search
       return res.status(200).json({
         error: null,
         results: users,
