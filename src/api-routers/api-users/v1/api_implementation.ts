@@ -8,6 +8,7 @@ import { createCheckers } from 'ts-interface-checker'
 import schemaInterfaceTi from '../../../interfaces/schema-interfaces-ti'
 import { IUser } from '../../../mongoose-db/schema-interfaces'
 import { Error } from 'mongoose'
+import * as _ from 'lodash'
 import rateLimit from 'express-rate-limit'
 
 // Api router defenition
@@ -262,11 +263,15 @@ usersApi.route('/findByName').get(async (req, res) => {
   // even when thei are incomplete, i.e name = 'aaaa',
   // and the given name was 'aa'.
   const firstNameRegex = new RegExp(
-    `${req.query.first?.length ? req.query.first : `\\S+`}`,
+    `${
+      req.query.first?.length
+        ? _.escapeRegExp(req.query.first as string)
+        : `\\S+`
+    }`,
     'i'
   )
   const lastNameRegex = new RegExp(
-    `${req.query.last ? req.query.last : `\\S+`}`,
+    `${req.query.last ? _.escapeRegExp(req.query.last as string) : `\\S+`}`,
     'i'
   )
 
@@ -325,7 +330,10 @@ usersApi.route('/findByCountry').get(async (req, res) => {
     return res.status(400).json({ error: 'Bad parameters' })
   }
 
-  const countryRegex = new RegExp(`^${req.query.country}`, 'i')
+  const countryRegex = new RegExp(
+    `^${_.escapeRegExp(req.query.country as string)}`,
+    'i'
+  )
 
   // Finds the users that equal or ar simillar to the users country
   return await UserModel.find({ country: countryRegex }).exec(
@@ -385,7 +393,10 @@ usersApi.route('/findByUsrName/:usrName').get(async (req, res) => {
   }
 
   // Allows the search to return simmilar values
-  const userName = new RegExp(`^${req.params.usrName}`, 'i')
+  const userName = new RegExp(
+    `^${_.escapeRegExp(req.params.usrName as string)}`,
+    'i'
+  )
 
   // Starts the search for the useer
   await UserModel.find({ usrName: userName }).exec(
@@ -497,7 +508,10 @@ usersApi.route('/findByExercise/:exercise').get(async (req, res) => {
     })
 
   // Create regex for inclussive search
-  const exerciseRegex = new RegExp(`^${req.params.exercise}`, 'i')
+  const exerciseRegex = new RegExp(
+    `^${_.escapeRegExp(req.params.exercise)}`,
+    'i'
+  )
 
   // Mongoose search in mongoDB
   return await UserModel.find({ favorite_exercise: exerciseRegex }).exec(
